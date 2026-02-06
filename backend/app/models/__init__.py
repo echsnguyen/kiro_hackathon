@@ -6,6 +6,7 @@ from .clinical_data import ClinicalDataRecord, ClinicalDataStatus
 from .consent import ConsentRecord, ConsentMethod
 from .submission import SubmissionRecord, SubmissionStatus
 from .transcript import Transcript, TranscriptStatus
+from .user import User, UserRole
 
 __all__ = [
     # Audio
@@ -25,4 +26,7 @@ __all__ = [
     # Transcript
     "Transcript",
     "TranscriptStatus",
+    # User
+    "User",
+    "UserRole",
 ]

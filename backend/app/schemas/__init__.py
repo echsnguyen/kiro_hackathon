@@ -59,6 +59,19 @@ from .transcript import (
     TranscriptionOptions,
     TranscriptionStatus,
 )
+from .user import (
+    UserBase,
+    UserCreate,
+    UserUpdate,
+    UserInDB,
+    UserResponse,
+    TokenPayload,
+    Token,
+    TokenRefresh,
+    LoginRequest,
+    LoginResponse,
+    OAuthLoginRequest,
+)
 
 __all__ = [
     # Audio
@@ -114,4 +127,16 @@ __all__ = [
     "TranscriptionJob",
     "TranscriptionOptions",
     "TranscriptionStatus",
+    # User
+    "UserBase",
+    "UserCreate",
+    "UserUpdate",
+    "UserInDB",
+    "UserResponse",
+    "TokenPayload",
+    "Token",
+    "TokenRefresh",
+    "LoginRequest",
+    "LoginResponse",
+    "OAuthLoginRequest",
 ]
