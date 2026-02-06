@@ -1,8 +1,5 @@
-"""Celery tasks module
+"""Celery tasks for async processing"""
 
-Tasks will be implemented here for:
-- Audio transcription
-- Speaker diarization
-- Clinical data extraction
-- Portal submission retry
-"""
+from app.celery_app import celery_app
+
+__all__ = ["celery_app"]

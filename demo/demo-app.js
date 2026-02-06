@@ -3,6 +3,7 @@
 let currentStep = 'review';
 let validatedFields = new Set();
 let highlightedSegmentId = null;
+let selectedInputMethod = null;
 
 // Initialize the demo
 document.addEventListener('DOMContentLoaded', () => {
@@ -21,6 +22,117 @@ function initializeConsent() {
     consentCheck.addEventListener('change', (e) => {
         consentBtn.disabled = !e.target.checked;
     });
+}
+
+// Input method selection
+function selectInputMethod(method) {
+    selectedInputMethod = method;
+    
+    // Update UI based on selection
+    const recordTitle = document.getElementById('record-title');
+    const recordingControls = document.getElementById('recording-controls');
+    const uploadAudioControls = document.getElementById('upload-audio-controls');
+    const uploadTranscriptControls = document.getElementById('upload-transcript-controls');
+    
+    // Hide all controls
+    recordingControls.style.display = 'none';
+    uploadAudioControls.style.display = 'none';
+    uploadTranscriptControls.style.display = 'none';
+    
+    // Show appropriate controls
+    if (method === 'record') {
+        recordTitle.textContent = 'Record Consultation';
+        recordingControls.style.display = 'block';
+    } else if (method === 'upload-audio') {
+        recordTitle.textContent = 'Upload Audio File';
+        uploadAudioControls.style.display = 'block';
+    } else if (method === 'upload-transcript') {
+        recordTitle.textContent = 'Upload Transcript';
+        uploadTranscriptControls.style.display = 'block';
+    }
+    
+    // Mark input-choice step as complete
+    document.querySelector('[data-step="input-choice"]').classList.add('completed');
+    
+    // Navigate to record/upload step
+    nextStep('record');
+}
+
+// Handle audio file upload
+function handleAudioUpload(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    
+    const statusDiv = document.getElementById('audio-upload-status');
+    statusDiv.innerHTML = `
+        <div class="status-message status-info" style="margin-top: 1rem;">
+            <strong>Processing audio file: ${file.name}</strong><br>
+            Encrypting and uploading... (simulated)
+        </div>
+    `;
+    
+    // Simulate upload and processing
+    setTimeout(() => {
+        statusDiv.innerHTML = `
+            <div class="status-message status-success" style="margin-top: 1rem;">
+                <strong>Upload complete!</strong><br>
+                File encrypted and ready for transcription
+            </div>
+        `;
+        
+        // Mark step as complete
+        document.querySelector('[data-step="record"]').classList.add('completed');
+        
+        // Auto-advance to transcription
+        setTimeout(() => {
+            nextStep('transcribe');
+        }, 1500);
+    }, 2000);
+}
+
+// Handle transcript file upload
+function handleTranscriptUpload(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        document.getElementById('transcript-text-input').value = e.target.result;
+        handleTranscriptText();
+    };
+    reader.readAsText(file);
+}
+
+// Handle transcript text input
+function handleTranscriptText() {
+    const text = document.getElementById('transcript-text-input').value.trim();
+    
+    if (!text) {
+        alert('Please enter or upload a transcript first.');
+        return;
+    }
+    
+    // Show processing message
+    const statusDiv = document.createElement('div');
+    statusDiv.className = 'status-message status-info';
+    statusDiv.style.marginTop = '1rem';
+    statusDiv.innerHTML = '<strong>Processing transcript...</strong><br>Parsing and preparing for extraction';
+    document.getElementById('upload-transcript-controls').appendChild(statusDiv);
+    
+    // Simulate processing
+    setTimeout(() => {
+        statusDiv.className = 'status-message status-success';
+        statusDiv.innerHTML = '<strong>Transcript processed!</strong><br>Ready for clinical data extraction';
+        
+        // Mark steps as complete
+        document.querySelector('[data-step="record"]').classList.add('completed');
+        document.querySelector('[data-step="transcribe"]').classList.add('completed');
+        
+        // Skip transcription, go directly to extraction
+        setTimeout(() => {
+            nextStep('extract');
+        }, 1500);
+    }, 2000);
 }
 
 // Step navigation
@@ -182,9 +294,12 @@ function renderForm() {
         if (field.category !== currentCategory) {
             currentCategory = field.category;
             const header = document.createElement('h4');
+            header.className = 'category-header';
             header.style.marginTop = '1.5rem';
             header.style.marginBottom = '1rem';
             header.style.color = '#667eea';
+            header.style.borderBottom = '2px solid #e5e7eb';
+            header.style.paddingBottom = '0.5rem';
             header.textContent = formatCategory(field.category);
             container.appendChild(header);
         }
@@ -198,18 +313,29 @@ function renderForm() {
         const confidenceText = field.confidence >= 0.8 ? 'High' :
                               field.confidence >= 0.6 ? 'Medium' : 'Low';
         
+        // Use textarea for longer fields
+        const isLongField = ['assessment_summary', 'recommendations', 'client_goals', 'referral_reason'].includes(field.id);
+        const inputElement = isLongField 
+            ? `<textarea 
+                class="form-input ${field.flagged ? 'flagged' : ''}" 
+                data-field-id="${field.id}"
+                rows="4"
+                style="resize: vertical; min-height: 80px;"
+            >${field.value}</textarea>`
+            : `<input 
+                type="text" 
+                class="form-input ${field.flagged ? 'flagged' : ''}" 
+                value="${field.value}"
+                data-field-id="${field.id}"
+            >`;
+        
         formGroup.innerHTML = `
             <label class="form-label">
                 ${field.label}
                 <span class="confidence-badge ${confidenceClass}">${confidenceText} Confidence</span>
                 ${field.flagged ? '<span class="confidence-badge confidence-medium">⚠ Review</span>' : ''}
             </label>
-            <input 
-                type="text" 
-                class="form-input ${field.flagged ? 'flagged' : ''}" 
-                value="${field.value}"
-                data-field-id="${field.id}"
-            >
+            ${inputElement}
             <div class="checkbox-group">
                 <input type="checkbox" id="validate-${field.id}" data-field-id="${field.id}">
                 <label for="validate-${field.id}">Validated</label>
@@ -298,12 +424,14 @@ function updateValidationStats() {
     document.getElementById('validated-fields').textContent = validated;
     document.getElementById('flagged-fields').textContent = flagged;
     
-    const progress = (validated / totalFields) * 100;
+    const progress = totalFields > 0 ? (validated / totalFields) * 100 : 0;
     document.getElementById('validation-progress').style.width = progress + '%';
     
     // Enable submit button when all fields validated
     const submitBtn = document.getElementById('submit-btn');
-    submitBtn.disabled = validated < totalFields;
+    if (submitBtn) {
+        submitBtn.disabled = validated < totalFields;
+    }
 }
 
 // Format time
@@ -315,7 +443,19 @@ function formatTime(seconds) {
 
 // Format category
 function formatCategory(category) {
-    return category.split('_').map(word => 
+    const categoryMap = {
+        'client_information': 'Client Information',
+        'referral_information': 'Referral Information',
+        'medical_history': 'Medical History',
+        'functional_mobility': 'Functional Assessment - Mobility',
+        'functional_selfcare': 'Functional Assessment - Self Care',
+        'functional_domestic': 'Functional Assessment - Domestic Tasks',
+        'home_environment': 'Home Environment',
+        'cognitive_psychosocial': 'Cognitive & Psychosocial',
+        'goals_plan': 'Goals & Assessment Summary'
+    };
+    
+    return categoryMap[category] || category.split('_').map(word => 
         word.charAt(0).toUpperCase() + word.slice(1)
     ).join(' ');
 }
@@ -324,6 +464,7 @@ function formatCategory(category) {
 function resetDemo() {
     validatedFields.clear();
     highlightedSegmentId = null;
+    selectedInputMethod = null;
     
     // Reset all steps
     document.querySelectorAll('.step').forEach(el => {
@@ -343,6 +484,12 @@ function resetDemo() {
     const recordBtn = document.querySelector('.record-button');
     recordBtn.classList.remove('recording');
     document.getElementById('record-text').textContent = 'Start Recording';
+    
+    // Reset upload controls
+    document.getElementById('audio-file-input').value = '';
+    document.getElementById('transcript-file-input').value = '';
+    document.getElementById('transcript-text-input').value = '';
+    document.getElementById('audio-upload-status').innerHTML = '';
     
     // Reset progress bars
     document.getElementById('transcribe-progress').style.width = '0%';

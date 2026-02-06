@@ -127,6 +127,16 @@
             }
         }
 
+        .category-header {
+            margin-top: 1.5rem;
+            margin-bottom: 1rem;
+            color: #667eea;
+            border-bottom: 2px solid #e5e7eb;
+            padding-bottom: 0.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+        }
+
         .transcript-panel {
             max-height: 600px;
             overflow-y: auto;
@@ -197,6 +207,7 @@
             border-radius: 6px;
             font-size: 0.95rem;
             transition: border-color 0.2s;
+            font-family: inherit;
         }
 
         .form-input:focus {
@@ -207,6 +218,12 @@
         .form-input.flagged {
             border-color: #f59e0b;
             background: #fffbeb;
+        }
+
+        textarea.form-input {
+            resize: vertical;
+            min-height: 80px;
+            line-height: 1.5;
         }
 
         .confidence-badge {
@@ -379,6 +396,94 @@
             margin-bottom: 1.5rem;
             line-height: 1.6;
         }
+
+        .input-choice-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .choice-card {
+            background: #f8fafc;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .choice-card:hover {
+            border-color: #667eea;
+            background: white;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
+            transform: translateY(-4px);
+        }
+
+        .choice-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .choice-card h3 {
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+            color: #1a202c;
+        }
+
+        .choice-card p {
+            font-size: 0.9rem;
+            color: #64748b;
+            margin-bottom: 1rem;
+            line-height: 1.5;
+        }
+
+        .choice-features {
+            margin-top: 1rem;
+            text-align: left;
+        }
+
+        .feature {
+            font-size: 0.85rem;
+            color: #475569;
+            padding: 0.25rem 0;
+        }
+
+        .upload-area {
+            border: 2px dashed #cbd5e0;
+            border-radius: 12px;
+            padding: 3rem 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: #f8fafc;
+        }
+
+        .upload-area:hover {
+            border-color: #667eea;
+            background: #eef2ff;
+        }
+
+        .upload-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .upload-area h3 {
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+            color: #1a202c;
+        }
+
+        .upload-area p {
+            color: #64748b;
+            font-size: 0.9rem;
+        }
+
+        .upload-controls {
+            text-align: center;
+        }
     </style>
 </head>
 <body>
@@ -394,9 +499,13 @@
                 <div class="step-number">✓</div>
                 <div class="step-title">Consent</div>
             </div>
+            <div class="step completed" data-step="input-choice">
+                <div class="step-number">✓</div>
+                <div class="step-title">Input Method</div>
+            </div>
             <div class="step completed" data-step="record">
                 <div class="step-number">✓</div>
-                <div class="step-title">Record</div>
+                <div class="step-title">Record/Upload</div>
             </div>
             <div class="step completed" data-step="transcribe">
                 <div class="step-number">✓</div>
@@ -407,11 +516,11 @@
                 <div class="step-title">Extract</div>
             </div>
             <div class="step active" data-step="review">
-                <div class="step-number">5</div>
+                <div class="step-number">6</div>
                 <div class="step-title">Review</div>
             </div>
             <div class="step" data-step="submit">
-                <div class="step-number">6</div>
+                <div class="step-number">7</div>
                 <div class="step-title">Submit</div>
             </div>
         </div>
@@ -435,7 +544,50 @@
                     <label for="consent-check">I have read and agree to the above</label>
                 </div>
                 <div class="actions">
-                    <button class="btn btn-primary" onclick="nextStep('record')" id="consent-btn" disabled>Continue to Recording</button>
+                    <button class="btn btn-primary" onclick="nextStep('input-choice')" id="consent-btn" disabled>Continue</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Input Choice Step -->
+        <div class="main-content" id="input-choice-content">
+            <div class="panel" style="max-width: 800px; margin: 0 auto;">
+                <h2>Choose Input Method</h2>
+                <p style="margin-bottom: 2rem; color: #64748b;">How would you like to provide the consultation data?</p>
+                
+                <div class="input-choice-grid">
+                    <div class="choice-card" onclick="selectInputMethod('record')">
+                        <div class="choice-icon">🎤</div>
+                        <h3>Record Audio</h3>
+                        <p>Record the consultation in real-time using your device's microphone</p>
+                        <div class="choice-features">
+                            <div class="feature">✓ Live recording</div>
+                            <div class="feature">✓ Real-time transcription</div>
+                            <div class="feature">✓ Speaker diarization</div>
+                        </div>
+                    </div>
+                    
+                    <div class="choice-card" onclick="selectInputMethod('upload-audio')">
+                        <div class="choice-icon">📁</div>
+                        <h3>Upload Audio File</h3>
+                        <p>Upload a pre-recorded audio file from your consultation</p>
+                        <div class="choice-features">
+                            <div class="feature">✓ Supports MP3, WAV, M4A</div>
+                            <div class="feature">✓ Automatic transcription</div>
+                            <div class="feature">✓ Speaker diarization</div>
+                        </div>
+                    </div>
+                    
+                    <div class="choice-card" onclick="selectInputMethod('upload-transcript')">
+                        <div class="choice-icon">📄</div>
+                        <h3>Upload Transcript</h3>
+                        <p>Upload an existing transcript if you already have one</p>
+                        <div class="choice-features">
+                            <div class="feature">✓ Skip transcription</div>
+                            <div class="feature">✓ Faster processing</div>
+                            <div class="feature">✓ Direct to extraction</div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -443,8 +595,8 @@
         <!-- Recording Step -->
         <div class="main-content" id="record-content">
             <div class="panel">
-                <h2>Record Consultation</h2>
-                <div class="recording-controls">
+                <h2 id="record-title">Record Consultation</h2>
+                <div class="recording-controls" id="recording-controls">
                     <button class="record-button" onclick="simulateRecording()">
                         <span id="record-text">Start Recording</span>
                     </button>
@@ -452,6 +604,39 @@
                         <strong>Ready to record</strong><br>
                         Click the button to start recording the consultation
                     </div>
+                </div>
+                
+                <!-- Upload Audio Controls -->
+                <div class="upload-controls" id="upload-audio-controls" style="display: none;">
+                    <div class="upload-area" onclick="document.getElementById('audio-file-input').click()">
+                        <div class="upload-icon">📁</div>
+                        <h3>Drop audio file here or click to browse</h3>
+                        <p>Supported formats: MP3, WAV, M4A, FLAC, OGG</p>
+                        <p style="font-size: 0.85rem; color: #94a3b8; margin-top: 0.5rem;">Maximum file size: 500MB</p>
+                    </div>
+                    <input type="file" id="audio-file-input" accept=".mp3,.wav,.m4a,.flac,.ogg" style="display: none;" onchange="handleAudioUpload(event)">
+                    <div id="audio-upload-status"></div>
+                </div>
+                
+                <!-- Upload Transcript Controls -->
+                <div class="upload-controls" id="upload-transcript-controls" style="display: none;">
+                    <div class="upload-area" onclick="document.getElementById('transcript-file-input').click()">
+                        <div class="upload-icon">📄</div>
+                        <h3>Drop transcript file here or click to browse</h3>
+                        <p>Supported formats: TXT, DOCX, PDF</p>
+                        <p style="font-size: 0.85rem; color: #94a3b8; margin-top: 0.5rem;">Or paste your transcript below</p>
+                    </div>
+                    <input type="file" id="transcript-file-input" accept=".txt,.docx,.pdf" style="display: none;" onchange="handleTranscriptUpload(event)">
+                    
+                    <div style="margin-top: 1.5rem;">
+                        <label class="form-label">Or paste transcript text:</label>
+                        <textarea id="transcript-text-input" rows="10" style="width: 100%; padding: 1rem; border: 2px solid #e5e7eb; border-radius: 6px; font-family: monospace; font-size: 0.9rem;" placeholder="Paste your consultation transcript here..."></textarea>
+                        <button class="btn btn-primary" onclick="handleTranscriptText()" style="margin-top: 1rem;">Process Transcript</button>
+                    </div>
+                </div>
+                
+                <div class="actions" style="margin-top: 2rem;">
+                    <button class="btn btn-secondary" onclick="prevStep('input-choice')">Back</button>
                 </div>
             </div>
         </div>
@@ -495,7 +680,7 @@
                     <div class="validation-stats">
                         <div class="stat">
                             <span>Total Fields:</span>
-                            <span class="stat-value" id="total-fields">12</span>
+                            <span class="stat-value" id="total-fields">38</span>
                         </div>
                         <div class="stat">
                             <span>Validated:</span>
@@ -503,7 +688,7 @@
                         </div>
                         <div class="stat">
                             <span>Flagged:</span>
-                            <span class="stat-value" style="color: #f59e0b;" id="flagged-fields">3</span>
+                            <span class="stat-value" style="color: #f59e0b;" id="flagged-fields">7</span>
                         </div>
                     </div>
                     <div class="progress-bar" style="margin-top: 1rem;">
@@ -522,12 +707,12 @@
 
                     <!-- Form Panel -->
                     <div>
-                        <h3 style="margin-bottom: 1rem;">Assessment Form</h3>
-                        <div id="form-container">
+                        <h3 style="margin-bottom: 1rem;">OT Assessment Form</h3>
+                        <div id="form-container" style="max-height: 600px; overflow-y: auto; padding-right: 1rem;">
                             <!-- Form fields will be inserted here -->
                         </div>
                         
-                        <div class="actions">
+                        <div class="actions" style="position: sticky; bottom: 0; background: white; padding-top: 1rem; margin-top: 1rem; border-top: 2px solid #e5e7eb;">
                             <button class="btn btn-secondary" onclick="prevStep('extract')">Back</button>
                             <button class="btn btn-primary" id="submit-btn" onclick="nextStep('submit')" disabled>Submit to Portal</button>
                         </div>
