@@ -25,7 +25,20 @@ The AI Allied Health Assessment Automator is an integrated clinical documentatio
 
 ## Requirements
 
-### Requirement 1: Audio Capture
+### Requirement 1: Input Method Selection
+
+**User Story:** As a clinician, I want to choose how to provide consultation data (live recording, audio upload, or transcript upload), so that I can use the most appropriate method for my workflow.
+
+#### Acceptance Criteria
+
+1. WHEN a clinician starts a new assessment session, THE System SHALL present input method selection as the first step
+2. THE System SHALL offer three input methods: live audio recording, audio file upload, and transcript upload
+3. WHEN an input method is selected, THE System SHALL show only the workflow steps relevant to that method
+4. WHEN live recording is selected, THE System SHALL require consent before proceeding to recording
+5. WHEN audio upload is selected, THE System SHALL skip consent and proceed directly to upload
+6. WHEN transcript upload is selected, THE System SHALL skip both consent and transcription steps
+
+### Requirement 1a: Audio Capture
 
 **User Story:** As a clinician, I want to securely record client consultations via mobile or tablet, so that I can capture the full conversation for automated processing.
 
@@ -37,17 +50,42 @@ The AI Allied Health Assessment Automator is an integrated clinical documentatio
 4. WHEN audio capture fails, THE System SHALL notify the clinician and preserve any partial recording
 5. THE System SHALL support audio recording on mobile, tablet, laptop, and desktop computer interfaces
 
-### Requirement 2: Consent Management
+### Requirement 1b: Audio File Upload
 
-**User Story:** As a clinician, I want to obtain and record client consent before recording, so that I comply with privacy regulations and ethical standards.
+**User Story:** As a clinician, I want to upload pre-recorded audio files from consultations, so that I can process recordings made outside the system.
 
 #### Acceptance Criteria
 
-1. WHEN a clinician starts a new consultation session, THE System SHALL present a consent interface before enabling recording
-2. THE System SHALL support both digital signature and verbal consent with timestamp
-3. WHEN consent is provided, THE System SHALL store the consent record with timestamp and method
-4. IF consent is not obtained, THEN THE System SHALL prevent audio recording
-5. WHEN consent records are stored, THE System SHALL encrypt them using AES-256 encryption
+1. WHEN a clinician selects audio upload, THE System SHALL accept audio files in common formats (MP3, WAV, M4A, FLAC, OGG)
+2. WHEN an audio file is uploaded, THE System SHALL validate the file format and size (maximum 500MB)
+3. WHEN upload is complete, THE System SHALL encrypt the audio file using AES-256 encryption at rest
+4. WHEN audio upload fails, THE System SHALL notify the clinician and allow retry
+5. THE System SHALL proceed to transcription after successful audio upload
+
+### Requirement 1c: Transcript Upload
+
+**User Story:** As a clinician, I want to upload existing transcripts, so that I can skip transcription and proceed directly to data extraction.
+
+#### Acceptance Criteria
+
+1. WHEN a clinician selects transcript upload, THE System SHALL accept transcript files in common formats (TXT, DOCX, PDF)
+2. WHEN a clinician selects transcript upload, THE System SHALL provide a text area for pasting transcript content
+3. WHEN a transcript is uploaded or pasted, THE System SHALL validate the content is not empty
+4. WHEN transcript upload is complete, THE System SHALL skip transcription and proceed directly to extraction
+5. THE System SHALL process uploaded transcripts with the same extraction pipeline as transcribed audio
+
+### Requirement 2: Consent Management
+
+**User Story:** As a clinician, I want to obtain and record client consent before live recording, so that I comply with privacy regulations and ethical standards.
+
+#### Acceptance Criteria
+
+1. WHEN a clinician selects live recording as the input method, THE System SHALL present a consent interface before enabling recording
+2. WHEN a clinician selects audio upload or transcript upload, THE System SHALL skip the consent step
+3. THE System SHALL support both digital signature and verbal consent with timestamp
+4. WHEN consent is provided, THE System SHALL store the consent record with timestamp and method
+5. IF consent is not obtained for live recording, THEN THE System SHALL prevent audio recording
+6. WHEN consent records are stored, THE System SHALL encrypt them using AES-256 encryption
 
 ### Requirement 3: Speech-to-Text Transcription
 
@@ -77,17 +115,21 @@ The AI Allied Health Assessment Automator is an integrated clinical documentatio
 
 ### Requirement 5: Clinical Data Extraction
 
-**User Story:** As a clinician, I want the system to automatically extract structured clinical information from the transcript, so that I don't have to manually type assessment data.
+**User Story:** As a clinician, I want the system to automatically extract structured clinical information from the transcript, so that I don't have to manually type assessment data following the OT Form template.
 
 #### Acceptance Criteria
 
-1. WHEN a Transcript is available, THE System SHALL extract demographics including name, age, and living arrangements
-2. WHEN a Transcript is available, THE System SHALL extract clinical history including current medications, past surgeries, and chronic conditions
-3. WHEN a Transcript is available, THE System SHALL extract functional status including mobility, falls history, and ADLs
-4. WHEN a Transcript is available, THE System SHALL extract client goals and aspirations
-5. WHEN a Transcript is available, THE System SHALL extract risk assessment data including cognitive state, skin integrity, and nutritional risks
-6. THE System SHALL output extracted data in JSON format matching Assessment_Form field structure
-7. WHEN extraction confidence is low for any field, THE System SHALL flag that field for clinician attention
+1. WHEN a Transcript is available, THE System SHALL extract client information including name, DOB, address, phone, and emergency contact
+2. WHEN a Transcript is available, THE System SHALL extract referral information including source, date, and reason
+3. WHEN a Transcript is available, THE System SHALL extract medical history including diagnosis, conditions, medications, and allergies
+4. WHEN a Transcript is available, THE System SHALL extract functional assessment data for mobility (indoor/outdoor mobility, transfers, stairs, falls history)
+5. WHEN a Transcript is available, THE System SHALL extract functional assessment data for self-care (bathing, dressing, grooming, toileting, feeding)
+6. WHEN a Transcript is available, THE System SHALL extract functional assessment data for domestic tasks (meal prep, housework, laundry, shopping)
+7. WHEN a Transcript is available, THE System SHALL extract home environment data (home type, access, bathroom setup, hazards)
+8. WHEN a Transcript is available, THE System SHALL extract cognitive and psychosocial data (cognitive status, mood, social support)
+9. WHEN a Transcript is available, THE System SHALL extract client goals, assessment summary, and recommendations
+10. THE System SHALL output extracted data in JSON format matching OT Assessment Form field structure (38 fields across 9 categories)
+11. WHEN extraction confidence is low for any field, THE System SHALL flag that field for clinician attention
 
 ### Requirement 6: Review Interface
 
@@ -185,9 +227,10 @@ The AI Allied Health Assessment Automator is an integrated clinical documentatio
 
 1. WHEN audio is submitted for transcription, THE System SHALL complete processing within 30 seconds for typical consultation length
 2. WHEN transcription is complete, THE System SHALL begin extraction immediately without manual intervention
-3. WHEN extraction is complete, THE System SHALL display the review interface within 5 seconds
-4. THE System SHALL provide progress indicators during all processing steps
-5. WHERE streaming transcription is available, THE System SHALL display transcript updates in real-time
+3. WHEN a transcript is uploaded directly, THE System SHALL begin extraction immediately without transcription delay
+4. WHEN extraction is complete, THE System SHALL display the review interface within 5 seconds
+5. THE System SHALL provide progress indicators during all processing steps
+6. WHERE streaming transcription is available, THE System SHALL display transcript updates in real-time
 
 ### Requirement 14: Audit Logging
 

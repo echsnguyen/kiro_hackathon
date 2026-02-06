@@ -86,11 +86,16 @@ graph TB
 
 ### Data Flow
 
-1. **Capture Phase**: Client app captures audio → encrypts locally → uploads to Audio Service
-2. **Transcription Phase**: Audio Service → STT Engine → raw transcript → Diarization Service → labeled transcript
-3. **Extraction Phase**: Labeled transcript → LLM with structured output schema → JSON clinical data
-4. **Review Phase**: Client fetches transcript + extracted data → displays side-by-side → clinician validates
-5. **Submission Phase**: Validated data → API Gateway → Portal API → confirmation
+1. **Input Selection Phase**: Client app presents input method choice → clinician selects method → workflow adapts
+2. **Consent Phase** (live recording only): Display consent form → obtain consent → enable recording
+3. **Capture/Upload Phase**: 
+   - Live recording: Record audio → encrypt locally → upload to Audio Service
+   - Audio upload: Select file → validate → encrypt → upload to Audio Service
+   - Transcript upload: Upload file or paste text → validate → skip to extraction
+4. **Transcription Phase** (audio only): Audio Service → STT Engine → raw transcript → Diarization Service → labeled transcript
+5. **Extraction Phase**: Labeled transcript → LLM with OT Form schema → JSON clinical data (38 fields across 9 categories)
+6. **Review Phase**: Client fetches transcript + extracted data → displays side-by-side → clinician validates
+7. **Submission Phase**: Validated data → API Gateway → Portal API → confirmation
 
 ### Security Architecture
 
@@ -103,7 +108,46 @@ graph TB
 
 ## Components and Interfaces
 
-### 1. Audio Capture Component
+### 1. Input Method Selection Component
+
+**Responsibility**: Present input method options and route to appropriate workflow.
+
+**Interfaces**:
+```typescript
+// React Frontend (TypeScript)
+interface InputMethodSelector {
+  // Display input method options
+  displayInputMethods(): void
+  
+  // Handle method selection
+  selectMethod(method: 'live-recording' | 'audio-upload' | 'transcript-upload'): void
+  
+  // Update workflow visibility
+  updateWorkflowSteps(method: string): void
+}
+
+interface WorkflowConfiguration {
+  method: 'live-recording' | 'audio-upload' | 'transcript-upload'
+  requiresConsent: boolean
+  requiresTranscription: boolean
+  steps: WorkflowStep[]
+}
+
+interface WorkflowStep {
+  id: string
+  title: string
+  visible: boolean
+  completed: boolean
+}
+```
+
+**Implementation Notes**:
+- Display three clear options with descriptions and feature lists
+- Show workflow steps dynamically based on selection
+- Hide irrelevant steps (consent for uploads, transcription for transcript upload)
+- Provide visual indicators for each method's requirements
+
+### 1a. Audio Capture Component
 
 **Responsibility**: Capture consultation audio across multiple device types with consent management.
 
@@ -162,6 +206,125 @@ interface AudioCaptureClient {
 - Implement local AES-256 encryption before upload
 - Support pause/resume functionality
 - Implement audio quality checks (sample rate, bit depth)
+
+### 1b. Audio Upload Component
+
+**Responsibility**: Accept and process pre-recorded audio files.
+
+**Interfaces**:
+```typescript
+// React Frontend (TypeScript)
+interface AudioUploadClient {
+  selectAudioFile(): Promise<File>
+  validateAudioFile(file: File): ValidationResult
+  uploadAudioFile(file: File): Promise<AudioUploadResponse>
+  getUploadProgress(uploadId: string): Promise<UploadProgress>
+}
+
+interface ValidationResult {
+  valid: boolean
+  errors: string[]
+  fileSize: number
+  format: string
+  duration?: number
+}
+
+interface AudioUploadResponse {
+  uploadId: string
+  status: 'success' | 'failed'
+  audioRecordingId?: string
+  errorMessage?: string
+}
+
+interface UploadProgress {
+  uploadId: string
+  bytesUploaded: number
+  totalBytes: number
+  percentComplete: number
+  status: 'uploading' | 'processing' | 'complete' | 'failed'
+}
+```
+
+**Implementation Notes**:
+- Support common audio formats: MP3, WAV, M4A, FLAC, OGG
+- Maximum file size: 500MB
+- Validate format and size before upload
+- Show upload progress indicator
+- Encrypt file before transmission
+- Proceed to transcription after successful upload
+
+### 1c. Transcript Upload Component
+
+**Responsibility**: Accept and process existing transcripts.
+
+**Interfaces**:
+```typescript
+// React Frontend (TypeScript)
+interface TranscriptUploadClient {
+  selectTranscriptFile(): Promise<File>
+  pasteTranscriptText(text: string): void
+  validateTranscript(content: string): ValidationResult
+  uploadTranscript(content: string): Promise<TranscriptUploadResponse>
+}
+
+interface TranscriptUploadResponse {
+  transcriptId: string
+  status: 'success' | 'failed'
+  wordCount: number
+  errorMessage?: string
+}
+```
+
+**Implementation Notes**:
+- Support text formats: TXT, DOCX, PDF
+- Provide text area for pasting transcript content
+- Validate content is not empty
+- Skip transcription step entirely
+- Proceed directly to extraction after upload
+- Format transcript for extraction pipeline
+
+### 1d. Consent Management Component
+
+**Responsibility**: Obtain and record client consent for live recording only.
+
+**Interfaces**:
+```python
+# Python Backend API
+class ConsentService:
+    """Consent management service for live recording"""
+    
+    def display_consent_form(self, session_id: str) -> ConsentForm:
+        """Display consent form for live recording"""
+        pass
+    
+    def record_consent(self, consent_data: ConsentRecord) -> ConsentResponse:
+        """Record consent decision"""
+        pass
+    
+    def verify_consent(self, session_id: str) -> bool:
+        """Verify consent was obtained"""
+        pass
+
+@dataclass
+class ConsentForm:
+    session_id: str
+    consent_text: str
+    consent_methods: List[Literal['digital_signature', 'verbal_timestamp']]
+
+@dataclass
+class ConsentResponse:
+    consent_id: str
+    session_id: str
+    granted: bool
+    timestamp: datetime
+```
+
+**Implementation Notes**:
+- Only display for live recording input method
+- Skip entirely for audio upload and transcript upload
+- Support digital signature and verbal timestamp
+- Store consent with encryption
+- Block recording if consent not obtained
 
 ### 2. Speech-to-Text Service
 
@@ -294,40 +457,79 @@ class ExtractionService:
 @dataclass
 class ExtractedClinicalData:
     session_id: str
-    demographics: Demographics
-    clinical_history: ClinicalHistory
-    functional_status: FunctionalStatus
-    goals_aspirations: GoalsAspirations
-    risk_assessment: RiskAssessment
+    client_information: ClientInformation
+    referral_information: ReferralInformation
+    medical_history: MedicalHistory
+    functional_mobility: FunctionalMobility
+    functional_selfcare: FunctionalSelfcare
+    functional_domestic: FunctionalDomestic
+    home_environment: HomeEnvironment
+    cognitive_psychosocial: CognitivePsychosocial
+    goals_plan: GoalsPlan
     extraction_metadata: ExtractionMetadata
 
 @dataclass
-class Demographics:
-    name: Optional[FieldExtraction] = None
-    age: Optional[FieldExtraction] = None
-    living_arrangements: Optional[FieldExtraction] = None
+class ClientInformation:
+    client_name: Optional[FieldExtraction] = None
+    dob: Optional[FieldExtraction] = None
+    address: Optional[FieldExtraction] = None
+    phone: Optional[FieldExtraction] = None
+    emergency_contact: Optional[FieldExtraction] = None
 
 @dataclass
-class ClinicalHistory:
-    current_medications: List[FieldExtraction] = field(default_factory=list)
-    past_surgeries: List[FieldExtraction] = field(default_factory=list)
-    chronic_conditions: List[FieldExtraction] = field(default_factory=list)
+class ReferralInformation:
+    referral_source: Optional[FieldExtraction] = None
+    referral_date: Optional[FieldExtraction] = None
+    referral_reason: Optional[FieldExtraction] = None
 
 @dataclass
-class FunctionalStatus:
-    mobility: Optional[FieldExtraction] = None
+class MedicalHistory:
+    diagnosis: Optional[FieldExtraction] = None
+    secondary_conditions: Optional[FieldExtraction] = None
+    medications: Optional[FieldExtraction] = None
+    allergies: Optional[FieldExtraction] = None
+
+@dataclass
+class FunctionalMobility:
+    mobility_indoor: Optional[FieldExtraction] = None
+    mobility_outdoor: Optional[FieldExtraction] = None
+    transfers: Optional[FieldExtraction] = None
+    stairs: Optional[FieldExtraction] = None
     falls_history: Optional[FieldExtraction] = None
-    adls: List[FieldExtraction] = field(default_factory=list)
 
 @dataclass
-class GoalsAspirations:
-    goals: List[FieldExtraction] = field(default_factory=list)
+class FunctionalSelfcare:
+    bathing: Optional[FieldExtraction] = None
+    dressing: Optional[FieldExtraction] = None
+    grooming: Optional[FieldExtraction] = None
+    toileting: Optional[FieldExtraction] = None
+    feeding: Optional[FieldExtraction] = None
 
 @dataclass
-class RiskAssessment:
-    cognitive_state: Optional[FieldExtraction] = None
-    skin_integrity: Optional[FieldExtraction] = None
-    nutritional_risks: Optional[FieldExtraction] = None
+class FunctionalDomestic:
+    meal_prep: Optional[FieldExtraction] = None
+    housework: Optional[FieldExtraction] = None
+    laundry: Optional[FieldExtraction] = None
+    shopping: Optional[FieldExtraction] = None
+
+@dataclass
+class HomeEnvironment:
+    home_type: Optional[FieldExtraction] = None
+    home_access: Optional[FieldExtraction] = None
+    bathroom_setup: Optional[FieldExtraction] = None
+    home_hazards: Optional[FieldExtraction] = None
+
+@dataclass
+class CognitivePsychosocial:
+    cognitive_status: Optional[FieldExtraction] = None
+    mood: Optional[FieldExtraction] = None
+    social_support: Optional[FieldExtraction] = None
+
+@dataclass
+class GoalsPlan:
+    client_goals: Optional[FieldExtraction] = None
+    assessment_summary: Optional[FieldExtraction] = None
+    recommendations: Optional[FieldExtraction] = None
 
 @dataclass
 class FieldExtraction:
@@ -362,19 +564,68 @@ class ExtractionMetadata:
 
 **LLM Prompt Structure**:
 ```
-You are a clinical documentation assistant. Extract structured assessment data from the following consultation transcript.
+You are a clinical documentation assistant. Extract structured OT assessment data from the following consultation transcript.
 
 TRANSCRIPT:
 [Diarized transcript with speaker labels]
 
-Extract the following information in JSON format:
+Extract the following information in JSON format matching the OT Assessment Form structure with 38 fields across 9 categories:
+
 {
-  "demographics": {
-    "name": {"value": "", "confidence": 0.0-1.0, "sourceText": ""},
-    "age": {"value": "", "confidence": 0.0-1.0, "sourceText": ""},
-    ...
+  "client_information": {
+    "client_name": {"value": "", "confidence": 0.0-1.0, "sourceText": ""},
+    "dob": {"value": "", "confidence": 0.0-1.0, "sourceText": ""},
+    "address": {"value": "", "confidence": 0.0-1.0, "sourceText": ""},
+    "phone": {"value": "", "confidence": 0.0-1.0, "sourceText": ""},
+    "emergency_contact": {"value": "", "confidence": 0.0-1.0, "sourceText": ""}
   },
-  ...
+  "referral_information": {
+    "referral_source": {"value": "", "confidence": 0.0-1.0, "sourceText": ""},
+    "referral_date": {"value": "", "confidence": 0.0-1.0, "sourceText": ""},
+    "referral_reason": {"value": "", "confidence": 0.0-1.0, "sourceText": ""}
+  },
+  "medical_history": {
+    "diagnosis": {"value": "", "confidence": 0.0-1.0, "sourceText": ""},
+    "secondary_conditions": {"value": "", "confidence": 0.0-1.0, "sourceText": ""},
+    "medications": {"value": "", "confidence": 0.0-1.0, "sourceText": ""},
+    "allergies": {"value": "", "confidence": 0.0-1.0, "sourceText": ""}
+  },
+  "functional_mobility": {
+    "mobility_indoor": {"value": "", "confidence": 0.0-1.0, "sourceText": ""},
+    "mobility_outdoor": {"value": "", "confidence": 0.0-1.0, "sourceText": ""},
+    "transfers": {"value": "", "confidence": 0.0-1.0, "sourceText": ""},
+    "stairs": {"value": "", "confidence": 0.0-1.0, "sourceText": ""},
+    "falls_history": {"value": "", "confidence": 0.0-1.0, "sourceText": ""}
+  },
+  "functional_selfcare": {
+    "bathing": {"value": "", "confidence": 0.0-1.0, "sourceText": ""},
+    "dressing": {"value": "", "confidence": 0.0-1.0, "sourceText": ""},
+    "grooming": {"value": "", "confidence": 0.0-1.0, "sourceText": ""},
+    "toileting": {"value": "", "confidence": 0.0-1.0, "sourceText": ""},
+    "feeding": {"value": "", "confidence": 0.0-1.0, "sourceText": ""}
+  },
+  "functional_domestic": {
+    "meal_prep": {"value": "", "confidence": 0.0-1.0, "sourceText": ""},
+    "housework": {"value": "", "confidence": 0.0-1.0, "sourceText": ""},
+    "laundry": {"value": "", "confidence": 0.0-1.0, "sourceText": ""},
+    "shopping": {"value": "", "confidence": 0.0-1.0, "sourceText": ""}
+  },
+  "home_environment": {
+    "home_type": {"value": "", "confidence": 0.0-1.0, "sourceText": ""},
+    "home_access": {"value": "", "confidence": 0.0-1.0, "sourceText": ""},
+    "bathroom_setup": {"value": "", "confidence": 0.0-1.0, "sourceText": ""},
+    "home_hazards": {"value": "", "confidence": 0.0-1.0, "sourceText": ""}
+  },
+  "cognitive_psychosocial": {
+    "cognitive_status": {"value": "", "confidence": 0.0-1.0, "sourceText": ""},
+    "mood": {"value": "", "confidence": 0.0-1.0, "sourceText": ""},
+    "social_support": {"value": "", "confidence": 0.0-1.0, "sourceText": ""}
+  },
+  "goals_plan": {
+    "client_goals": {"value": "", "confidence": 0.0-1.0, "sourceText": ""},
+    "assessment_summary": {"value": "", "confidence": 0.0-1.0, "sourceText": ""},
+    "recommendations": {"value": "", "confidence": 0.0-1.0, "sourceText": ""}
+  }
 }
 
 Rules:
@@ -384,6 +635,7 @@ Rules:
 - Include confidence score (0.0-1.0) for each field
 - Include the exact source text that supports each extraction
 - Use null for fields not mentioned in the transcript
+- Follow OT Assessment Form structure with 38 fields across 9 categories
 ```
 
 ### 5. Review Interface Component
