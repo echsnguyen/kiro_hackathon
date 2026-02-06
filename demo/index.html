@@ -495,33 +495,79 @@
     <div class="container">
         <!-- Workflow Steps -->
         <div class="workflow-steps">
-            <div class="step completed" data-step="consent">
-                <div class="step-number">✓</div>
-                <div class="step-title">Consent</div>
-            </div>
-            <div class="step completed" data-step="input-choice">
-                <div class="step-number">✓</div>
+            <div class="step active" data-step="input-choice">
+                <div class="step-number">1</div>
                 <div class="step-title">Input Method</div>
             </div>
-            <div class="step completed" data-step="record">
-                <div class="step-number">✓</div>
+            <div class="step" data-step="consent">
+                <div class="step-number">2</div>
+                <div class="step-title">Consent</div>
+            </div>
+            <div class="step" data-step="record">
+                <div class="step-number">3</div>
                 <div class="step-title">Record/Upload</div>
             </div>
-            <div class="step completed" data-step="transcribe">
-                <div class="step-number">✓</div>
+            <div class="step" data-step="transcribe">
+                <div class="step-number">4</div>
                 <div class="step-title">Transcribe</div>
             </div>
-            <div class="step completed" data-step="extract">
-                <div class="step-number">✓</div>
+            <div class="step" data-step="extract">
+                <div class="step-number">5</div>
                 <div class="step-title">Extract</div>
             </div>
-            <div class="step active" data-step="review">
+            <div class="step" data-step="review">
                 <div class="step-number">6</div>
                 <div class="step-title">Review</div>
             </div>
             <div class="step" data-step="submit">
                 <div class="step-number">7</div>
                 <div class="step-title">Submit</div>
+            </div>
+        </div>
+
+        <!-- Input Choice Step -->
+        <div class="main-content active" id="input-choice-content">
+            <div class="panel" style="max-width: 800px; margin: 0 auto;">
+                <h2>Choose Input Method</h2>
+                <p style="margin-bottom: 2rem; color: #64748b;">How would you like to provide the consultation data?</p>
+                
+                <div class="input-choice-grid">
+                    <div class="choice-card" onclick="selectInputMethod('record')">
+                        <div class="choice-icon">🎤</div>
+                        <h3>Record Audio</h3>
+                        <p>Record the consultation in real-time using your device's microphone</p>
+                        <div class="choice-features">
+                            <div class="feature">✓ Live recording</div>
+                            <div class="feature">✓ Real-time transcription</div>
+                            <div class="feature">✓ Speaker diarization</div>
+                            <div class="feature">⚠ Requires consent</div>
+                        </div>
+                    </div>
+                    
+                    <div class="choice-card" onclick="selectInputMethod('upload-audio')">
+                        <div class="choice-icon">📁</div>
+                        <h3>Upload Audio File</h3>
+                        <p>Upload a pre-recorded audio file from your consultation</p>
+                        <div class="choice-features">
+                            <div class="feature">✓ Supports MP3, WAV, M4A</div>
+                            <div class="feature">✓ Automatic transcription</div>
+                            <div class="feature">✓ Speaker diarization</div>
+                            <div class="feature">✓ No consent needed</div>
+                        </div>
+                    </div>
+                    
+                    <div class="choice-card" onclick="selectInputMethod('upload-transcript')">
+                        <div class="choice-icon">📄</div>
+                        <h3>Upload Transcript</h3>
+                        <p>Upload an existing transcript if you already have one</p>
+                        <div class="choice-features">
+                            <div class="feature">✓ Skip transcription</div>
+                            <div class="feature">✓ Fastest processing</div>
+                            <div class="feature">✓ Direct to extraction</div>
+                            <div class="feature">✓ No consent needed</div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -544,50 +590,8 @@
                     <label for="consent-check">I have read and agree to the above</label>
                 </div>
                 <div class="actions">
-                    <button class="btn btn-primary" onclick="nextStep('input-choice')" id="consent-btn" disabled>Continue</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Input Choice Step -->
-        <div class="main-content" id="input-choice-content">
-            <div class="panel" style="max-width: 800px; margin: 0 auto;">
-                <h2>Choose Input Method</h2>
-                <p style="margin-bottom: 2rem; color: #64748b;">How would you like to provide the consultation data?</p>
-                
-                <div class="input-choice-grid">
-                    <div class="choice-card" onclick="selectInputMethod('record')">
-                        <div class="choice-icon">🎤</div>
-                        <h3>Record Audio</h3>
-                        <p>Record the consultation in real-time using your device's microphone</p>
-                        <div class="choice-features">
-                            <div class="feature">✓ Live recording</div>
-                            <div class="feature">✓ Real-time transcription</div>
-                            <div class="feature">✓ Speaker diarization</div>
-                        </div>
-                    </div>
-                    
-                    <div class="choice-card" onclick="selectInputMethod('upload-audio')">
-                        <div class="choice-icon">📁</div>
-                        <h3>Upload Audio File</h3>
-                        <p>Upload a pre-recorded audio file from your consultation</p>
-                        <div class="choice-features">
-                            <div class="feature">✓ Supports MP3, WAV, M4A</div>
-                            <div class="feature">✓ Automatic transcription</div>
-                            <div class="feature">✓ Speaker diarization</div>
-                        </div>
-                    </div>
-                    
-                    <div class="choice-card" onclick="selectInputMethod('upload-transcript')">
-                        <div class="choice-icon">📄</div>
-                        <h3>Upload Transcript</h3>
-                        <p>Upload an existing transcript if you already have one</p>
-                        <div class="choice-features">
-                            <div class="feature">✓ Skip transcription</div>
-                            <div class="feature">✓ Faster processing</div>
-                            <div class="feature">✓ Direct to extraction</div>
-                        </div>
-                    </div>
+                    <button class="btn btn-secondary" onclick="prevStep('input-choice')">Back</button>
+                    <button class="btn btn-primary" onclick="nextStep('record')" id="consent-btn" disabled>Continue</button>
                 </div>
             </div>
         </div>
@@ -636,7 +640,7 @@
                 </div>
                 
                 <div class="actions" style="margin-top: 2rem;">
-                    <button class="btn btn-secondary" onclick="prevStep('input-choice')">Back</button>
+                    <button class="btn btn-secondary" id="record-back-btn" onclick="prevStep('consent')">Back</button>
                 </div>
             </div>
         </div>

@@ -1,6 +1,6 @@
 // Demo application logic
 
-let currentStep = 'review';
+let currentStep = 'input-choice';
 let validatedFields = new Set();
 let highlightedSegmentId = null;
 let selectedInputMethod = null;
@@ -22,22 +22,79 @@ function initializeConsent() {
     consentCheck.addEventListener('change', (e) => {
         consentBtn.disabled = !e.target.checked;
     });
+    
+    // Setup consent continue button
+    consentBtn.onclick = () => {
+        document.querySelector('[data-step="consent"]').classList.add('completed');
+        setupRecordStep('record');
+        nextStep('record');
+    };
 }
 
 // Input method selection
 function selectInputMethod(method) {
     selectedInputMethod = method;
     
-    // Update UI based on selection
+    // Mark input-choice step as complete
+    document.querySelector('[data-step="input-choice"]').classList.add('completed');
+    
+    // Show/hide steps based on input method
+    updateWorkflowSteps(method);
+    
+    // Different workflow based on method
+    if (method === 'record') {
+        // Live recording requires consent first
+        nextStep('consent');
+    } else if (method === 'upload-audio') {
+        // Audio upload: skip consent, go to upload, then transcribe
+        setupRecordStep('upload-audio');
+        nextStep('record');
+    } else if (method === 'upload-transcript') {
+        // Transcript upload: skip consent and transcription
+        setupRecordStep('upload-transcript');
+        nextStep('record');
+    }
+}
+
+// Update workflow steps visibility based on input method
+function updateWorkflowSteps(method) {
+    const consentStep = document.querySelector('[data-step="consent"]');
+    const transcribeStep = document.querySelector('[data-step="transcribe"]');
+    
+    if (method === 'record') {
+        // Show all steps for live recording
+        consentStep.style.display = 'flex';
+        transcribeStep.style.display = 'flex';
+    } else if (method === 'upload-audio') {
+        // Hide consent, show transcribe
+        consentStep.style.display = 'none';
+        transcribeStep.style.display = 'flex';
+    } else if (method === 'upload-transcript') {
+        // Hide both consent and transcribe
+        consentStep.style.display = 'none';
+        transcribeStep.style.display = 'none';
+    }
+}
+
+// Setup record step based on input method
+function setupRecordStep(method) {
     const recordTitle = document.getElementById('record-title');
     const recordingControls = document.getElementById('recording-controls');
     const uploadAudioControls = document.getElementById('upload-audio-controls');
     const uploadTranscriptControls = document.getElementById('upload-transcript-controls');
+    const recordBackBtn = document.getElementById('record-back-btn');
     
     // Hide all controls
     recordingControls.style.display = 'none';
     uploadAudioControls.style.display = 'none';
     uploadTranscriptControls.style.display = 'none';
+    
+    // Update back button destination
+    if (method === 'record') {
+        recordBackBtn.onclick = () => prevStep('consent');
+    } else {
+        recordBackBtn.onclick = () => prevStep('input-choice');
+    }
     
     // Show appropriate controls
     if (method === 'record') {
@@ -50,12 +107,6 @@ function selectInputMethod(method) {
         recordTitle.textContent = 'Upload Transcript';
         uploadTranscriptControls.style.display = 'block';
     }
-    
-    // Mark input-choice step as complete
-    document.querySelector('[data-step="input-choice"]').classList.add('completed');
-    
-    // Navigate to record/upload step
-    nextStep('record');
 }
 
 // Handle audio file upload
@@ -83,7 +134,7 @@ function handleAudioUpload(event) {
         // Mark step as complete
         document.querySelector('[data-step="record"]').classList.add('completed');
         
-        // Auto-advance to transcription
+        // Auto-advance to transcription (skip consent step in workflow display)
         setTimeout(() => {
             nextStep('transcribe');
         }, 1500);
@@ -469,6 +520,7 @@ function resetDemo() {
     // Reset all steps
     document.querySelectorAll('.step').forEach(el => {
         el.classList.remove('completed', 'active');
+        el.style.display = 'flex'; // Show all steps again
     });
     
     // Reset checkboxes
@@ -491,13 +543,18 @@ function resetDemo() {
     document.getElementById('transcript-text-input').value = '';
     document.getElementById('audio-upload-status').innerHTML = '';
     
+    // Clear any status messages in upload transcript controls
+    const uploadTranscriptControls = document.getElementById('upload-transcript-controls');
+    const statusMessages = uploadTranscriptControls.querySelectorAll('.status-message');
+    statusMessages.forEach(msg => msg.remove());
+    
     // Reset progress bars
     document.getElementById('transcribe-progress').style.width = '0%';
     document.getElementById('extract-progress').style.width = '0%';
     document.getElementById('validation-progress').style.width = '0%';
     
     updateValidationStats();
-    showStep('consent');
+    showStep('input-choice');
 }
 
 // Allow clicking on workflow steps
