@@ -1,8 +1,8 @@
-# Design Document: AI Allied Health Assessment Automator
+# Design Document: ECH Scribe
 
 ## Overview
 
-The AI Allied Health Assessment Automator is a cloud-based clinical documentation system that transforms consultation audio into structured assessment data. The system employs a multi-stage processing pipeline: audio capture → transcription → speaker diarization → clinical entity extraction → human review → portal integration.
+ECH Scribe is a cloud-based clinical documentation system that transforms consultation audio into structured assessment data. The system employs a multi-stage processing pipeline: audio capture → transcription → speaker diarization → clinical entity extraction → human review → portal integration.
 
 The architecture follows a microservices pattern with clear separation between capture, processing, review, and integration layers. All components communicate via secure REST APIs with end-to-end encryption. The system prioritizes clinical accuracy through human-in-the-loop validation while maximizing automation to reduce documentation burden.
 

@@ -2,11 +2,11 @@
 
 ## Introduction
 
-The AI Allied Health Assessment Automator is an integrated clinical documentation tool that transforms audio recordings of client consultations into structured, validated assessment data. The system captures consultation audio, transcribes it with medical vocabulary support, extracts clinical entities using LLM technology, and presents the data for clinician review before integration with the provider portal. This automation reduces manual data entry burden while maintaining clinical accuracy and compliance with health data privacy regulations.
+ECH Scribe is an integrated clinical documentation tool that transforms audio recordings of client consultations into structured, validated assessment data. The system captures consultation audio, transcribes it with medical vocabulary support, extracts clinical entities using LLM technology, and presents the data for clinician review before integration with the provider portal. This automation reduces manual data entry burden while maintaining clinical accuracy and compliance with health data privacy regulations.
 
 ## Glossary
 
-- **System**: The AI Allied Health Assessment Automator
+- **System**: ECH Scribe
 - **Clinician**: Healthcare provider conducting the assessment (employee)
 - **Client**: Person receiving allied health services
 - **Carer**: Family member or support person accompanying the Client

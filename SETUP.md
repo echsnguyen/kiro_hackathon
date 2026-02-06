@@ -1,6 +1,6 @@
-# Setup Guide
+# ECH Scribe - Setup Guide
 
-This guide will help you set up the AI Allied Health Assessment Automator development environment.
+This guide will help you set up the ECH Scribe development environment.
 
 ## Prerequisites
 

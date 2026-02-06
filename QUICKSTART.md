@@ -1,4 +1,4 @@
-# Quick Start Guide
+# ECH Scribe - Quick Start Guide
 
 ## 🎯 Choose Your Setup
 

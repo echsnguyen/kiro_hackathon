@@ -1,4 +1,4 @@
-# AI Allied Health Assessment Automator
+# ECH Scribe
 
 An integrated clinical documentation tool that transforms audio recordings of client consultations into structured, validated assessment data.
 

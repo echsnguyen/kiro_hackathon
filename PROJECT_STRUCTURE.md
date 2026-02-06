@@ -1,11 +1,11 @@
-# Project Structure
+# ECH Scribe - Project Structure
 
-This document describes the complete project structure for the AI Allied Health Assessment Automator.
+This document describes the complete project structure for ECH Scribe.
 
 ## Overview
 
 ```
-allied-health-assessment-automator/
+ech-scribe/
 ├── backend/                    # Python FastAPI backend
 ├── frontend/                   # React TypeScript frontend
 ├── .kiro/                      # Kiro specifications
