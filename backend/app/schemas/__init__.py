@@ -1,0 +1,117 @@
+"""Pydantic schemas for API validation"""
+
+from .audio import (
+    AudioRecordingBase,
+    AudioRecordingCreate,
+    AudioRecordingResponse,
+    AudioUploadResponse,
+    RecordingSession,
+    RecordingStatus,
+)
+from .audit import (
+    AuditLogBase,
+    AuditLogCreate,
+    AuditLogFilters,
+    AuditLogResponse,
+)
+from .clinical_data import (
+    ClinicalDataRecordBase,
+    ClinicalDataRecordCreate,
+    ClinicalDataRecordResponse,
+    ClinicalHistory,
+    Demographics,
+    ExtractedClinicalData,
+    ExtractionMetadata,
+    FieldExtraction,
+    FieldExtractionRequest,
+    FunctionalStatus,
+    GoalsAspirations,
+    RiskAssessment,
+    SourceSegment,
+    ValidationResult,
+    ValidationStatus,
+)
+from .consent import (
+    ConsentRecordBase,
+    ConsentRecordCreate,
+    ConsentRecordResponse,
+)
+from .submission import (
+    AssessmentFormData,
+    SubmissionMetadata,
+    SubmissionRecordBase,
+    SubmissionRecordCreate,
+    SubmissionRecordResponse,
+    SubmissionResult,
+    SubmissionStatus,
+    ValidatedAssessmentData,
+)
+from .transcript import (
+    DiarizedSegment,
+    DiarizedTranscript,
+    Speaker,
+    SpeakerRoleMapping,
+    TranscriptBase,
+    TranscriptCreate,
+    TranscriptResponse,
+    TranscriptSegment,
+    TranscriptionJob,
+    TranscriptionOptions,
+    TranscriptionStatus,
+)
+
+__all__ = [
+    # Audio
+    "AudioRecordingBase",
+    "AudioRecordingCreate",
+    "AudioRecordingResponse",
+    "AudioUploadResponse",
+    "RecordingSession",
+    "RecordingStatus",
+    # Audit
+    "AuditLogBase",
+    "AuditLogCreate",
+    "AuditLogFilters",
+    "AuditLogResponse",
+    # Clinical Data
+    "ClinicalDataRecordBase",
+    "ClinicalDataRecordCreate",
+    "ClinicalDataRecordResponse",
+    "ClinicalHistory",
+    "Demographics",
+    "ExtractedClinicalData",
+    "ExtractionMetadata",
+    "FieldExtraction",
+    "FieldExtractionRequest",
+    "FunctionalStatus",
+    "GoalsAspirations",
+    "RiskAssessment",
+    "SourceSegment",
+    "ValidationResult",
+    "ValidationStatus",
+    # Consent
+    "ConsentRecordBase",
+    "ConsentRecordCreate",
+    "ConsentRecordResponse",
+    # Submission
+    "AssessmentFormData",
+    "SubmissionMetadata",
+    "SubmissionRecordBase",
+    "SubmissionRecordCreate",
+    "SubmissionRecordResponse",
+    "SubmissionResult",
+    "SubmissionStatus",
+    "ValidatedAssessmentData",
+    # Transcript
+    "DiarizedSegment",
+    "DiarizedTranscript",
+    "Speaker",
+    "SpeakerRoleMapping",
+    "TranscriptBase",
+    "TranscriptCreate",
+    "TranscriptResponse",
+    "TranscriptSegment",
+    "TranscriptionJob",
+    "TranscriptionOptions",
+    "TranscriptionStatus",
+]
