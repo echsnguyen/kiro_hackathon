@@ -16,7 +16,7 @@ class Settings(BaseSettings):
     )
     
     # Application
-    app_name: str = "AI Allied Health Assessment Automator"
+    app_name: str = "ECH Scribe"
     app_version: str = "1.0.0"
     environment: str = "development"
     debug: bool = False
@@ -66,15 +66,23 @@ class Settings(BaseSettings):
     oauth_audience: str = ""
     
     # AI Services
+    # Ollama (local LLM server)
+    ollama_base_url: str = "http://localhost:11434"
+    ollama_model: str = "llama3.1:8b"
+    ollama_timeout: int = 120
+    
+    # Whisper (Speech-to-Text)
     whisper_model: str = "large-v3"
     whisper_device: str = "cpu"
     whisper_api_url: str = ""
     
+    # Google Gemini (alternative LLM)
     google_api_key: str = ""
     gemini_model: str = "gemini-1.5-pro"
     gemini_temperature: float = 0.1
     gemini_max_tokens: int = 8192
     
+    # Pyannote (Speaker Diarization)
     pyannote_auth_token: str = ""
     pyannote_model: str = "pyannote/speaker-diarization-3.1"
     

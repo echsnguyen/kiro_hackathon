@@ -12,7 +12,7 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - "C:/Users/son.nguyen/OneDrive - ECH INC/Documents/docker_storage/postgres_data:/var/lib/postgresql/data"
       - ./backend/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
     command: 
       - "postgres"
@@ -31,13 +31,26 @@ services:
     ports:
       - "6379:6379"
     volumes:
-      - redis_data:/data
+      - "C:/Users/son.nguyen/OneDrive - ECH INC/Documents/docker_storage/redis_data:/data"
     command: redis-server --appendonly yes
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 10s
       timeout: 5s
       retries: 5
+
+  # Ollama AI Server
+  ollama:
+    image: ollama/ollama:0.15.5
+    container_name: allied_health_ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - "C:/Users/son.nguyen/OneDrive - ECH INC/Documents/docker_storage/ollama_data:/root/.ollama"
+    environment:
+      - OLLAMA_HOST=0.0.0.0
+    # Removed health check - Ollama takes time to start and doesn't have curl
+    restart: unless-stopped
 
   # Backend API (FastAPI)
   backend:
@@ -50,6 +63,7 @@ services:
       - REDIS_URL=redis://redis:6379/0
       - CELERY_BROKER_URL=redis://redis:6379/1
       - CELERY_RESULT_BACKEND=redis://redis:6379/2
+      - OLLAMA_BASE_URL=http://ollama:11434
     ports:
       - "8000:8000"
     volumes:
@@ -60,6 +74,8 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
+      ollama:
+        condition: service_started
     command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
 
   # Celery Worker for async tasks
@@ -73,6 +89,7 @@ services:
       - REDIS_URL=redis://redis:6379/0
       - CELERY_BROKER_URL=redis://redis:6379/1
       - CELERY_RESULT_BACKEND=redis://redis:6379/2
+      - OLLAMA_BASE_URL=http://ollama:11434
     volumes:
       - ./backend:/app
     depends_on:
@@ -80,6 +97,8 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
+      ollama:
+        condition: service_started
     command: celery -A app.celery_app worker --loglevel=info
 
   # Frontend (React + Vite)
@@ -102,6 +121,7 @@ services:
 volumes:
   postgres_data:
   redis_data:
+  ollama_data:
   backend_logs:
 
 networks:

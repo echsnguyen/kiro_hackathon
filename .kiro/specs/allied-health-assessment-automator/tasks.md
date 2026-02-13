@@ -63,7 +63,7 @@ This implementation plan breaks down the AI Allied Health Assessment Automator i
   - _Requirements: 7.4_
 
 - [ ] 4. Implement audit logging service
-  - [~] 4.1 Create AuditLoggingService Python class with all logging methods
+  - [ ] 4.1 Create AuditLoggingService Python class with all logging methods
     - Implement log_consent, log_recording, log_transcription, log_extraction, log_field_edit, log_submission methods
     - Configure encrypted audit log storage in PostgreSQL
     - Use Python logging module with structured logging (structlog)
@@ -79,17 +79,17 @@ This implementation plan breaks down the AI Allied Health Assessment Automator i
     - Test async logging behavior
     - _Requirements: 14.1, 14.2, 14.3, 14.4, 14.5, 14.6_
 
-- [~] 5. Checkpoint - Ensure all tests pass
+- [ ] 5. Checkpoint - Ensure all tests pass
   - Ensure all tests pass, ask the user if questions arise.
 
 - [ ] 6. Implement consent management
-  - [~] 6.1 Create ConsentRecord Pydantic model and SQLAlchemy ORM model
+  - [ ] 6.1 Create ConsentRecord Pydantic model and SQLAlchemy ORM model
     - Implement consent record creation with encryption using cryptography library
     - Support both digital signature and verbal timestamp methods
     - Create FastAPI endpoints for consent management
     - _Requirements: 2.2, 2.3, 2.5_
   
-  - [~] 6.2 Create consent validation logic
+  - [ ] 6.2 Create consent validation logic
     - Implement consent-before-recording enforcement in FastAPI dependency
     - Block recording attempts without consent (raise HTTP 403)
     - Create middleware to check consent status
@@ -110,19 +110,19 @@ This implementation plan breaks down the AI Allied Health Assessment Automator i
     - _Requirements: 2.2_
 
 - [ ] 7. Implement audio capture service
-  - [~] 7.1 Create AudioCaptureService Python class and React frontend component
+  - [ ] 7.1 Create AudioCaptureService Python class and React frontend component
     - Backend: Implement FastAPI endpoints for start_recording, stop_recording, get_recording_status
     - Frontend: Create React component using Web Audio API for browser capture
     - Implement local AES-256 encryption before upload using cryptography library (Python) and Web Crypto API (React)
     - _Requirements: 1.1, 1.3, 1.5_
   
-  - [~] 7.2 Implement audio upload to encrypted storage
+  - [ ] 7.2 Implement audio upload to encrypted storage
     - Backend: Use boto3 (AWS S3) or azure-storage-blob for file upload
     - Generate secure pre-signed URLs for direct upload from frontend
     - Implement multipart upload for large audio files
     - _Requirements: 1.3_
   
-  - [~] 7.3 Implement audio capture error handling
+  - [ ] 7.3 Implement audio capture error handling
     - Backend: Handle storage errors, encryption failures
     - Frontend: Handle microphone access denied, storage quota exceeded, format errors
     - Preserve partial recordings on failure
@@ -143,20 +143,20 @@ This implementation plan breaks down the AI Allied Health Assessment Automator i
     - _Requirements: 1.1, 1.4_
 
 - [ ] 8. Implement Speech-to-Text service
-  - [~] 8.1 Create STTService Python class with OpenAI Whisper v3 integration
+  - [ ] 8.1 Create STTService Python class with OpenAI Whisper v3 integration
     - Implement transcribe, get_transcription_status, get_transcript methods
     - Use openai-whisper or faster-whisper library
     - Configure medical vocabulary support using custom vocabulary lists
     - Set up batch transcription mode with Celery for async processing
     - _Requirements: 3.1, 3.6_
   
-  - [~] 8.2 Implement streaming transcription
+  - [ ] 8.2 Implement streaming transcription
     - Implement stream_transcription async method for real-time updates
     - Configure WebSocket (FastAPI WebSocket) or Server-Sent Events for streaming
     - Use streaming-capable STT engine or chunk-based processing
     - _Requirements: 3.4, 3.5_
   
-  - [~] 8.3 Implement transcription error handling
+  - [ ] 8.3 Implement transcription error handling
     - Handle STT service unavailable, timeout, poor audio quality
     - Preserve original audio on failure
     - Implement retry logic with exponential backoff using tenacity library
@@ -180,24 +180,24 @@ This implementation plan breaks down the AI Allied Health Assessment Automator i
     - Mock Whisper API for unit tests
     - _Requirements: 3.1_
 
-- [~] 9. Checkpoint - Ensure all tests pass
+- [ ] 9. Checkpoint - Ensure all tests pass
   - Ensure all tests pass, ask the user if questions arise.
 
 - [ ] 10. Implement speaker diarization service
-  - [~] 10.1 Create DiarizationService Python class with pyannote.audio integration
+  - [ ] 10.1 Create DiarizationService Python class with pyannote.audio integration
     - Implement diarize and assign_speaker_roles methods
     - Use pyannote.audio pretrained pipeline for speaker diarization
     - Configure speaker clustering algorithm
     - Process audio files with pyannote and map to transcript segments
     - _Requirements: 4.1, 4.2_
   
-  - [~] 10.2 Implement speaker confidence flagging
+  - [ ] 10.2 Implement speaker confidence flagging
     - Flag low-confidence segments for review (threshold < 0.7)
     - Calculate overall diarization confidence
     - Store confidence scores in database
     - _Requirements: 4.4_
   
-  - [~] 10.3 Implement speaker role assignment UI support
+  - [ ] 10.3 Implement speaker role assignment UI support
     - Backend: Create FastAPI endpoint for updating speaker roles
     - Frontend: Create React component for manual speaker role assignment
     - Allow clinician to manually assign speaker roles (clinician/client/carer)
@@ -230,7 +230,7 @@ This implementation plan breaks down the AI Allied Health Assessment Automator i
     - _Requirements: 4.1, 4.4_
 
 - [ ] 11. Implement clinical data extraction service
-  - [~] 11.1 Create ExtractionService Python class with Google Gemini 1.5 Pro integration
+  - [ ] 11.1 Create ExtractionService Python class with Google Gemini 1.5 Pro integration
     - Implement extract_clinical_data, re_extract_field, validate_extraction methods
     - Use google-generativeai library for Gemini API
     - Configure structured output with JSON schema using Pydantic models
@@ -238,14 +238,14 @@ This implementation plan breaks down the AI Allied Health Assessment Automator i
     - Use few-shot examples in prompts for better accuracy
     - _Requirements: 5.1, 5.2, 5.3, 5.4, 5.5, 5.6_
   
-  - [~] 11.2 Implement confidence scoring and field flagging
+  - [ ] 11.2 Implement confidence scoring and field flagging
     - Calculate confidence scores for each extracted field
     - Flag fields below confidence threshold (< 0.7)
     - Extract source segments for traceability by matching text spans
     - Store confidence scores and flags in database
     - _Requirements: 5.7_
   
-  - [~] 11.3 Implement field-level re-extraction
+  - [ ] 11.3 Implement field-level re-extraction
     - Allow re-extraction of specific fields without re-processing entire transcript
     - Preserve other fields during re-extraction
     - Update only the targeted field in database
@@ -269,27 +269,27 @@ This implementation plan breaks down the AI Allied Health Assessment Automator i
     - Mock Gemini API for unit tests
     - _Requirements: 5.1, 5.2, 5.3, 5.4, 5.5_
 
-- [~] 12. Checkpoint - Ensure all tests pass
+- [ ] 12. Checkpoint - Ensure all tests pass
   - Ensure all tests pass, ask the user if questions arise.
 
 - [ ] 13. Implement review interface backend
-  - [~] 13.1 Create ReviewInterfaceService
+  - [ ] 13.1 Create ReviewInterfaceService
     - Implement loadReviewSession, updateField, assignSegmentToField methods
     - Implement markFieldValidated, getValidationStatus, submitToPortal methods
     - _Requirements: 6.1, 6.4, 6.5, 6.6_
   
-  - [~] 13.2 Implement draft mode and validation state management
+  - [ ] 13.2 Implement draft mode and validation state management
     - Set initial state to Draft_Mode for all extracted data
     - Track validation status for each field
     - Enable submission only when all required fields validated
     - _Requirements: 6.3, 6.6, 11.2, 11.3_
   
-  - [~] 13.3 Implement source segment linking
+  - [ ] 13.3 Implement source segment linking
     - Maintain links between form fields and transcript segments
     - Support retrieval of source segments for any field
     - _Requirements: 6.2, 15.6_
   
-  - [~] 13.4 Implement manual segment assignment
+  - [ ] 13.4 Implement manual segment assignment
     - Support assignment of transcript segments to fields
     - Support multiple segments per field
     - Prioritize manual assignments over AI extractions
@@ -329,23 +329,23 @@ This implementation plan breaks down the AI Allied Health Assessment Automator i
     - **Validates: Requirements 15.5**
 
 - [ ] 14. Implement review interface frontend
-  - [~] 14.1 Create React components for review UI
+  - [ ] 14.1 Create React components for review UI
     - Build TranscriptPanel component with speaker labels and timestamps
     - Build FormPanel component with auto-populated fields
     - Build ValidationControls component with progress indicator
     - _Requirements: 6.1_
   
-  - [~] 14.2 Implement source segment highlighting
+  - [ ] 14.2 Implement source segment highlighting
     - Implement click-to-highlight functionality
     - Highlight source segments when field is clicked
     - _Requirements: 6.2_
   
-  - [~] 14.3 Implement manual segment assignment UI
+  - [ ] 14.3 Implement manual segment assignment UI
     - Implement drag-and-drop or click-to-assign interface
     - Show assigned segments in form fields
     - _Requirements: 6.5, 15.1, 15.2_
   
-  - [~] 14.4 Implement field editing and validation
+  - [ ] 14.4 Implement field editing and validation
     - Allow inline editing of form fields
     - Show validation status for each field
     - Enable submit button only when ready
@@ -357,19 +357,19 @@ This implementation plan breaks down the AI Allied Health Assessment Automator i
     - _Requirements: 6.1, 6.2, 6.4, 6.5, 6.6_
 
 - [ ] 15. Implement portal integration service
-  - [~] 15.1 Create PortalIntegrationService
+  - [ ] 15.1 Create PortalIntegrationService
     - Implement submitAssessment, retrySubmission, getSubmissionStatus methods
     - Configure Portal API client with authentication
     - Implement payload formatting and schema validation
     - _Requirements: 10.1, 10.2_
   
-  - [~] 15.2 Implement submission retry logic
+  - [ ] 15.2 Implement submission retry logic
     - Implement exponential backoff (max 3 retries)
     - Queue failed submissions for background retry
     - Handle rate limits gracefully
     - _Requirements: 10.4_
   
-  - [~] 15.3 Implement submission confirmation and error handling
+  - [ ] 15.3 Implement submission confirmation and error handling
     - Notify clinician of success/failure
     - Preserve validated data on failure
     - Log all submission attempts
@@ -396,21 +396,21 @@ This implementation plan breaks down the AI Allied Health Assessment Automator i
     - Test retry logic with simulated failures
     - _Requirements: 10.2, 10.4_
 
-- [~] 16. Checkpoint - Ensure all tests pass
+- [ ] 16. Checkpoint - Ensure all tests pass
   - Ensure all tests pass, ask the user if questions arise.
 
 - [ ] 17. Implement human-in-the-loop safety controls
-  - [~] 17.1 Implement no auto-submission enforcement
+  - [ ] 17.1 Implement no auto-submission enforcement
     - Ensure submission requires explicit clinician action
     - Block any automatic submission paths
     - _Requirements: 11.1_
   
-  - [~] 17.2 Implement draft mode submission block
+  - [ ] 17.2 Implement draft mode submission block
     - Disable submission when data is in Draft_Mode
     - Require explicit transition to validated state
     - _Requirements: 11.3, 11.4_
   
-  - [~] 17.3 Implement unvalidated submission prevention
+  - [ ] 17.3 Implement unvalidated submission prevention
     - Check all required fields are validated before submission
     - Prompt for review if validation incomplete
     - _Requirements: 11.5_
@@ -432,18 +432,18 @@ This implementation plan breaks down the AI Allied Health Assessment Automator i
     - **Validates: Requirements 11.5**
 
 - [ ] 18. Implement error handling and recovery
-  - [~] 18.1 Implement data preservation across failures
+  - [ ] 18.1 Implement data preservation across failures
     - Preserve audio on transcription failure
     - Preserve transcript on extraction failure
     - Preserve validated data on submission failure
     - _Requirements: 12.1, 12.2, 12.3, 12.4_
   
-  - [~] 18.2 Implement offline queue and sync
+  - [ ] 18.2 Implement offline queue and sync
     - Queue data for submission when offline
     - Auto-submit when connectivity restored
     - _Requirements: 12.6_
   
-  - [~] 18.3 Implement automatic extraction progression
+  - [ ] 18.3 Implement automatic extraction progression
     - Start extraction automatically after transcription
     - No manual intervention required
     - _Requirements: 13.2_
@@ -466,7 +466,7 @@ This implementation plan breaks down the AI Allied Health Assessment Automator i
     - _Requirements: 12.1, 12.2, 12.3, 12.4, 12.6_
 
 - [ ] 19. Implement TLS encryption for all communications
-  - [~] 19.1 Configure TLS 1.3 for all API endpoints
+  - [ ] 19.1 Configure TLS 1.3 for all API endpoints
     - Set up SSL certificates
     - Configure HTTPS for all services
     - Enforce TLS 1.2+ minimum version
@@ -477,18 +477,18 @@ This implementation plan breaks down the AI Allied Health Assessment Automator i
     - **Validates: Requirements 7.4, 7.5, 10.5**
 
 - [ ] 20. Implement PII redaction
-  - [~] 20.1 Create PII detection and redaction service
+  - [ ] 20.1 Create PII detection and redaction service
     - Implement PII pattern detection (SSN, credit cards, etc.)
     - Implement redaction logic
     - Maintain clinical context during redaction
     - _Requirements: 8.1, 8.2_
   
-  - [~] 20.2 Implement redaction override functionality
+  - [ ] 20.2 Implement redaction override functionality
     - Allow clinicians to review redaction decisions
     - Allow clinicians to override redactions
     - _Requirements: 8.4_
   
-  - [~] 20.3 Implement redaction audit logging
+  - [ ] 20.3 Implement redaction audit logging
     - Log all redaction events
     - Include redacted content in audit logs (encrypted)
     - _Requirements: 8.5_
@@ -510,18 +510,18 @@ This implementation plan breaks down the AI Allied Health Assessment Automator i
     - _Requirements: 8.1_
 
 - [ ] 21. Implement zero data retention compliance
-  - [~] 21.1 Configure AI services with private instances
+  - [ ] 21.1 Configure AI services with private instances
     - Set up private Whisper v3 instance
     - Set up private Gemini 1.5 Pro instance with zero retention
     - Configure pyannote.audio for local processing
     - _Requirements: 9.1, 9.2_
   
-  - [~] 21.2 Implement approved endpoint restriction
+  - [ ] 21.2 Implement approved endpoint restriction
     - Whitelist approved AI service endpoints
     - Block transmission to non-approved endpoints
     - _Requirements: 9.3_
   
-  - [~] 21.3 Implement external service audit trail
+  - [ ] 21.3 Implement external service audit trail
     - Log all external AI service interactions
     - Confirm zero retention policy compliance
     - _Requirements: 9.5_
@@ -534,7 +534,7 @@ This implementation plan breaks down the AI Allied Health Assessment Automator i
     - **Property 27: External Service Audit Trail**
     - **Validates: Requirements 9.5**
 
-- [~] 22. Checkpoint - Ensure all tests pass
+- [ ] 22. Checkpoint - Ensure all tests pass
   - Ensure all tests pass, ask the user if questions arise.
 
 - [ ] 23. Integration and end-to-end testing
@@ -555,17 +555,17 @@ This implementation plan breaks down the AI Allied Health Assessment Automator i
     - _Requirements: 6.4, 6.5, 15.2, 15.3, 15.4, 15.5_
 
 - [ ] 24. Security hardening and compliance validation
-  - [~] 24.1 Implement rate limiting and DDoS protection
+  - [ ] 24.1 Implement rate limiting and DDoS protection
     - Configure rate limits for all API endpoints
     - Set up Web Application Firewall (WAF)
     - _Requirements: 7.4_
   
-  - [~] 24.2 Implement multi-factor authentication (MFA)
+  - [ ] 24.2 Implement multi-factor authentication (MFA)
     - Configure MFA for all clinician accounts
     - Enforce MFA for sensitive operations
     - _Requirements: 7.4_
   
-  - [~] 24.3 Conduct security audit
+  - [ ] 24.3 Conduct security audit
     - Review all encryption implementations
     - Review all authentication and authorization logic
     - Review audit logging completeness
@@ -578,17 +578,17 @@ This implementation plan breaks down the AI Allied Health Assessment Automator i
     - _Requirements: 7.1, 7.2, 7.3, 7.4, 14.1, 14.2, 14.3, 14.4, 14.5, 14.6_
 
 - [ ] 25. Performance optimization
-  - [~] 25.1 Optimize transcription latency
+  - [ ] 25.1 Optimize transcription latency
     - Implement parallel processing where possible
     - Optimize audio preprocessing
     - _Requirements: 13.1_
   
-  - [~] 25.2 Optimize extraction latency
+  - [ ] 25.2 Optimize extraction latency
     - Implement caching for repeated extractions
     - Optimize LLM prompt size
     - _Requirements: 13.3_
   
-  - [~] 25.3 Optimize database queries
+  - [ ] 25.3 Optimize database queries
     - Add indexes for common queries
     - Implement query result caching
     - _Requirements: 13.3_
@@ -599,7 +599,7 @@ This implementation plan breaks down the AI Allied Health Assessment Automator i
     - Test review interface load (< 5 seconds)
     - _Requirements: 13.1, 13.3_
 
-- [~] 26. Final checkpoint - Ensure all tests pass
+- [ ] 26. Final checkpoint - Ensure all tests pass
   - Ensure all tests pass, ask the user if questions arise.
 
 ## Notes
